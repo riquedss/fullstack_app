@@ -17,9 +17,9 @@ class UsersController < ApplicationController
     user = User.new(user_params)
     if user.save
       session[:user_id] = user.id
-      render json: { status: :created, user: user }
+      render json: { user: user }, status: :created
     else
-      render json: { status: 422, errors: user.errors.full_messages }
+      render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
     end
   end
 
@@ -28,7 +28,7 @@ class UsersController < ApplicationController
     if user
       render json: { user: user }
     else
-      render json: { status: 404, message: 'Usuário não encontrado.' }
+      render json: { message: 'Usuário não encontrado.' }, status: :not_found
     end
   end
 
