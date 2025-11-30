@@ -145,4 +145,4 @@ docker run -d -p 80:80 -e RAILS_MASTER_KEY=<valor> --name fullstack_app fullstac
 
 ---
 
-> Colabore, use Pull Requests e compartilhe melhorias!
+
