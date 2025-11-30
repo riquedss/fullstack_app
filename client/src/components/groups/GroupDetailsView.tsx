@@ -165,16 +165,6 @@ const GroupDetailsView: React.FC<GroupDetailsViewProps> = ({ group, currentUser,
     }
   };
 
-  const handleSettleExpense = async (expenseId: number) => {
-    if (window.confirm('Deseja quitar essa despesa? Isso vai criar pagamentos para o pagador.')) {
-      try {
-        await api.post(`/groups/${group.id}/expenses/${expenseId}/settle`);
-        fetchGroupData();
-      } catch (err: any) {
-        setError(err.response?.data?.error || 'Erro ao quitar despesa.');
-      }
-    }
-  };
 
   const handlePaymentFormSubmit = () => {
     setIsCreatingPayment(false);
@@ -309,7 +299,6 @@ const GroupDetailsView: React.FC<GroupDetailsViewProps> = ({ group, currentUser,
               expenses={expenses}
               onEditExpense={handleEditExpense}
               onDeleteExpense={handleDeleteExpense}
-              onSettleExpense={handleSettleExpense}
             />
             <PaymentList
               payments={payments}

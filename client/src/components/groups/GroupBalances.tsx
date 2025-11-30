@@ -39,14 +39,23 @@ const GroupBalances: React.FC<GroupBalancesProps> = ({ netBalances, detailedBala
         <p>Nenhum saldo líquido para exibir.</p>
       ) : (
         <ul>
-          {netBalances.map((balance, index) => (
-            <li key={index}>
-              {balance.user.name}: 
-              <span className={parseFloat(balance.amount) >= 0 ? 'positive-balance' : 'negative-balance'}>
-                {parseFloat(balance.amount).toFixed(2)} {currency}
-              </span>
-            </li>
-          ))}
+          {netBalances.map((balance, index) => {
+            const amount = parseFloat(balance.amount);
+            const isPositive = amount >= 0;
+            const absAmount = Math.abs(amount);
+            
+            return (
+              <li key={index}>
+                <strong>{balance.user.name}:</strong>
+                <span className={isPositive ? 'positive-balance' : 'negative-balance'}>
+                  {isPositive 
+                    ? `deve receber ${absAmount.toFixed(2)} ${currency}`
+                    : `deve pagar ${absAmount.toFixed(2)} ${currency}`
+                  }
+                </span>
+              </li>
+            );
+          })}
         </ul>
       )}
 

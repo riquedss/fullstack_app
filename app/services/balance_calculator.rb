@@ -25,12 +25,18 @@ class BalanceCalculator
       end
     end
 
-    # Processar pagamentos
+    # Processar pagamentos (lógica Splitwise)
+    # No Splitwise: quando você paga, seu saldo MELHORA (reduz sua dívida)
+    # Exemplo: Se você deve R$ 100 (saldo = -100) e paga R$ 50, você agora deve R$ 50 (saldo = -50)
+    # Portanto: pagamentos ADICIONAM ao saldo do pagador (melhoram) e SUBTRAEM do saldo do recebedor
     @group.payments.each do |payment|
-      # O pagador perde o montante que pagou
-      net_balances[payment.payer] -= payment.amount
-      # O recebedor ganha o montante que recebeu
-      net_balances[payment.receiver] += payment.amount
+      # O pagador está pagando sua dívida, então MELHORA seu saldo (adiciona)
+      # Se estava -100 e paga 50, fica -50 (melhorou)
+      net_balances[payment.payer] += payment.amount
+      
+      # O recebedor está recebendo pagamento, então PIORA seu saldo (subtrai)
+      # Se estava +100 e recebe 50, fica +50 (piorou, porque agora deve menos)
+      net_balances[payment.receiver] -= payment.amount
     end
 
     # Filtra balanços para membros ativos e garante que o total seja zero para o grupo
@@ -65,31 +71,36 @@ class BalanceCalculator
       end
     end
 
-    # Processar pagamentos para reduzir dívidas diretas
+    # Processar pagamentos para reduzir dívidas diretas (lógica Splitwise)
     @group.payments.each do |payment|
       # O pagador (payment.payer) paga o recebedor (payment.receiver)
       # Isso reduz a dívida do pagador para o recebedor
       amount_to_settle = payment.amount
 
-      # Caso 1: Pagador devia diretamente ao recebedor
+      # Caso 1: Pagador devia diretamente ao recebedor - reduz a dívida
       if direct_debts[payment.payer][payment.receiver] > BigDecimal('0.00')
         debt = direct_debts[payment.payer][payment.receiver]
         if amount_to_settle >= debt
+          # Pagamento quita toda a dívida
           direct_debts[payment.payer][payment.receiver] = BigDecimal('0.00')
           amount_to_settle -= debt
         else
+          # Pagamento quita parte da dívida
           direct_debts[payment.payer][payment.receiver] -= amount_to_settle
           amount_to_settle = BigDecimal('0.00')
         end
       end
 
-      # Se ainda houver montante a ser liquidado após o pagamento direto,
-      # isso significa que o pagador está pagando dívidas indiretas ou adiantando crédito.
-      # Para o cálculo de dívidas diretas, este é um caso mais complexo que será resolvido
-      # pelo BalanceAggregator e SettlementOptimizer. Por agora, focamos nas dívidas positivas.
-      # Se o amount_to_settle > 0 aqui, pode significar um "crédito" adicional que o payer tem.
-      # Podemos modelar isso como uma dívida negativa, ou deixar para o otimizador.
-      # Aqui, a estrutura é focada em quem DEVE a quem, não em saldos líquidos gerais.
+      # Caso 2: Se o pagador não devia ao recebedor, mas ainda há montante a liquidar,
+      # isso significa que o pagador está pagando mais do que devia (criando crédito reverso)
+      # ou pagando dívidas indiretas. Isso será resolvido pelo BalanceAggregator e SettlementOptimizer.
+      # Por enquanto, se houver montante restante, podemos criar uma "dívida reversa" 
+      # (o recebedor agora deve ao pagador)
+      if amount_to_settle > BigDecimal('0.00')
+        # O pagador pagou mais do que devia, então o recebedor agora deve ao pagador
+        direct_debts[payment.receiver][payment.payer] ||= BigDecimal('0.00')
+        direct_debts[payment.receiver][payment.payer] += amount_to_settle
+      end
     end
 
     # Remove dívidas zeradas e usuários sem dívidas/créditos

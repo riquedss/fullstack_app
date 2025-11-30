@@ -28,7 +28,7 @@ interface ExpenseListProps {
   onDeleteExpense: (expenseId: number) => void;
 }
 
-const ExpenseList: React.FC<ExpenseListProps & { onSettleExpense: (expenseId: number) => void }> = ({ expenses, onEditExpense, onDeleteExpense, onSettleExpense }) => {
+const ExpenseList: React.FC<ExpenseListProps> = ({ expenses, onEditExpense, onDeleteExpense }) => {
   if (!expenses || expenses.length === 0) {
     return <p>Nenhuma despesa registrada neste grupo ainda.</p>;
   }
@@ -57,7 +57,6 @@ const ExpenseList: React.FC<ExpenseListProps & { onSettleExpense: (expenseId: nu
           <div className="expense-actions">
             <button onClick={() => onEditExpense(expense)}>Editar</button>
             <button onClick={() => onDeleteExpense(expense.id)}>Excluir</button>
-            <button onClick={() => onSettleExpense(expense.id)}>Quitar</button>
           </div>
         </div>
       ))}

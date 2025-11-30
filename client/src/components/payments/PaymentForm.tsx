@@ -56,6 +56,13 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ groupId, groupMembers, curren
     }
   }, [existingPayment]);
 
+  // Debug: log dos dados recebidos
+  useEffect(() => {
+    console.log('PaymentForm - groupMembers:', groupMembers);
+    console.log('PaymentForm - currentUser:', currentUser);
+    console.log('PaymentForm - groupMembers length:', groupMembers?.length || 0);
+  }, [groupMembers, currentUser]);
+
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
     setLoading(true);
@@ -107,9 +114,31 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ groupId, groupMembers, curren
     setLoading(false);
   };
 
-  const otherGroupMembers = groupMembers.filter(member => member.id !== currentUser.id && member.status === 'active');
-  console.log('Other Group Members for select:', otherGroupMembers);
-  console.log('Current Receiver ID:', receiverId);
+  // Filtra membros disponíveis para receber pagamento
+  // Inclui todos os membros ativos, exceto o próprio usuário logado
+  const otherGroupMembers = React.useMemo(() => {
+    if (!groupMembers || groupMembers.length === 0) {
+      console.warn('PaymentForm: groupMembers está vazio ou undefined');
+      return [];
+    }
+    
+    const filtered = groupMembers.filter(member => {
+      const isNotCurrentUser = member.id !== currentUser?.id;
+      const isActive = member.status === 'active' || !member.status; // Aceita 'active' ou se status não existir
+      
+      if (!isNotCurrentUser) {
+        console.log('PaymentForm: Removendo currentUser do filtro:', member);
+      }
+      if (!isActive) {
+        console.log('PaymentForm: Removendo membro inativo:', member);
+      }
+      
+      return isNotCurrentUser && isActive;
+    });
+    
+    console.log('PaymentForm - otherGroupMembers filtrados:', filtered);
+    return filtered;
+  }, [groupMembers, currentUser]);
 
   return (
     <form onSubmit={handleSubmit} className="payment-form">
@@ -130,19 +159,30 @@ const PaymentForm: React.FC<PaymentFormProps> = ({ groupId, groupMembers, curren
 
       <div>
         <label htmlFor="receiver">Recebedor:</label>
-        <select
-          id="receiver"
-          value={receiverId}
-          onChange={(e) => setReceiverId(parseInt(e.target.value))}
-          required
-        >
-          <option value="">Selecione um recebedor</option>
-          {otherGroupMembers.map(member => (
-            <option key={member.id} value={member.id}>
-              {member.name}
-            </option>
-          ))}
-        </select>
+        {otherGroupMembers.length === 0 ? (
+          <div>
+            <select id="receiver" disabled>
+              <option value="">Nenhum membro disponível</option>
+            </select>
+            <p style={{ color: 'orange', fontSize: '0.9em', marginTop: '5px' }}>
+              Não há outros membros ativos no grupo para receber pagamento.
+            </p>
+          </div>
+        ) : (
+          <select
+            id="receiver"
+            value={receiverId}
+            onChange={(e) => setReceiverId(parseInt(e.target.value))}
+            required
+          >
+            <option value="">Selecione um recebedor</option>
+            {otherGroupMembers.map(member => (
+              <option key={member.id} value={member.id}>
+                {member.name || `Usuário ${member.id}`}
+              </option>
+            ))}
+          </select>
+        )}
       </div>
 
       <div>

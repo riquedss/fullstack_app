@@ -21,7 +21,16 @@ class GroupsController < ApplicationController
       }
     end
     group_data['memberships'] = memberships_data
-    group_data['members'] = @group.members.as_json(only: [:id, :name, :email])
+    
+    # Inclui o status de cada membro baseado no membership
+    members_with_status = @group.members.includes(:group_memberships).map do |member|
+      membership = @group.group_memberships.find_by(user: member)
+      member.as_json(only: [:id, :name, :email]).merge(
+        status: membership&.status || 'active'
+      )
+    end
+    group_data['members'] = members_with_status
+    
     render json: group_data
   end
 

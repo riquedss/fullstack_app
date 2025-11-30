@@ -20,10 +20,11 @@ class Group < ApplicationRecord
       end
     end
 
-    # Ajustar balanços para pagamentos
+    # Ajustar balanços para pagamentos (lógica Splitwise)
+    # Pagamentos melhoram o saldo do pagador (reduzem dívida) e pioram o saldo do recebedor
     payments.each do |payment|
-      balances[payment.payer] -= payment.amount
-      balances[payment.receiver] += payment.amount
+      balances[payment.payer] += payment.amount
+      balances[payment.receiver] -= payment.amount
     end
 
     balances

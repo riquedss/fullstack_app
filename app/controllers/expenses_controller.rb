@@ -23,8 +23,16 @@ class ExpensesController < ApplicationController
     ActiveRecord::Base.transaction do
       if @expense.save
         # Aplica a regra de divisão usando SplitRuleEngine
-        splitting_method = expense_params[:splitting_method]&.to_sym || :equally
-        splitting_params = expense_params[:splitting_params] || {}
+        # Mapeia os métodos do frontend para os símbolos esperados pelo SplitRuleEngine
+        method_mapping = {
+          'equally' => :equally,
+          'percentages' => :by_percentages,
+          'weights' => :by_weights,
+          'fixed_amounts' => :by_fixed_amounts
+        }
+        raw_method = expense_params[:splitting_method] || 'equally'
+        splitting_method = method_mapping[raw_method] || :equally
+        splitting_params = normalize_splitting_params(expense_params[:splitting_params] || {}, splitting_method)
 
         # Instancia o serviço com a despesa
         split_engine = SplitRuleEngine.new(@expense)
@@ -60,8 +68,16 @@ class ExpensesController < ApplicationController
       @expense.expense_participants.destroy_all
 
       if @expense.update(expense_params.except(:splitting_method, :splitting_params))
-        splitting_method = expense_params[:splitting_method]&.to_sym || :equally
-        splitting_params = expense_params[:splitting_params] || {}
+        # Mapeia os métodos do frontend para os símbolos esperados pelo SplitRuleEngine
+        method_mapping = {
+          'equally' => :equally,
+          'percentages' => :by_percentages,
+          'weights' => :by_weights,
+          'fixed_amounts' => :by_fixed_amounts
+        }
+        raw_method = expense_params[:splitting_method] || 'equally'
+        splitting_method = method_mapping[raw_method] || :equally
+        splitting_params = normalize_splitting_params(expense_params[:splitting_params] || {}, splitting_method)
 
         split_engine = SplitRuleEngine.new(@expense)
         participant_amounts = split_engine.apply_split(splitting_method, splitting_params)
@@ -152,5 +168,38 @@ class ExpensesController < ApplicationController
       :splitting_method, # Será usado pelo serviço, não salvo diretamente no modelo
       splitting_params: {} # Parâmetros para o método de divisão (ex: { user_id: percentage }) - aceita hash genérico
     )
+  end
+
+  # Normaliza os parâmetros de divisão convertendo chaves de string para inteiro
+  # e garantindo que os valores sejam numéricos
+  def normalize_splitting_params(params_hash, splitting_method)
+    return {} if params_hash.blank?
+
+    # Converte ActionController::Parameters para hash se necessário
+    params_hash = params_hash.to_h if params_hash.is_a?(ActionController::Parameters)
+    normalized = {}
+    
+    case splitting_method
+    when :by_percentages
+      percentages = params_hash[:percentages] || params_hash['percentages']
+      if percentages.present?
+        # Converte chaves de string para inteiro e valores para numérico
+        normalized[:percentages] = percentages.to_h.transform_keys(&:to_i).transform_values(&:to_f)
+      end
+    when :by_weights
+      weights = params_hash[:weights] || params_hash['weights']
+      if weights.present?
+        # Converte chaves de string para inteiro e valores para numérico
+        normalized[:weights] = weights.to_h.transform_keys(&:to_i).transform_values(&:to_f)
+      end
+    when :by_fixed_amounts
+      amounts = params_hash[:amounts] || params_hash['amounts']
+      if amounts.present?
+        # Converte chaves de string para inteiro e valores para numérico
+        normalized[:amounts] = amounts.to_h.transform_keys(&:to_i).transform_values(&:to_f)
+      end
+    end
+
+    normalized
   end
 end
