@@ -114,13 +114,33 @@ bin/setup
 
 ## 7. Rodando os testes
 
-### Backend (Rails):
+### Backend (Rails com RSpec):
 ```bash
-bin/rails test   # Ou rake test
+# Rodar todos os testes
+bundle exec rspec
+
+# Rodar testes de um arquivo específico
+bundle exec rspec spec/models/user_spec.rb
+
+# Rodar testes de um diretório
+bundle exec rspec spec/models/
+
+# Rodar um teste específico (por linha)
+bundle exec rspec spec/models/user_spec.rb:10
+
+# Com formatação detalhada
+bundle exec rspec --format documentation
 ```
 
 ### Frontend (React):
 - (Adicionar testes se necessário, não há configuração pronta nesta base)
+
+### Ferramentas de teste configuradas:
+- **RSpec**: Framework de testes BDD
+- **FactoryBot**: Criação de dados de teste
+- **Shoulda Matchers**: Matchers para validações e associações
+- **Database Cleaner**: Limpeza do banco entre testes
+- **Faker**: Geração de dados aleatórios para testes
 
 ## 8. Build de produção
 
