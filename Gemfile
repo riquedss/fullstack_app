@@ -58,9 +58,13 @@ group :development, :test do
   gem "rspec-rails", "~> 7.0"
   gem "factory_bot_rails"
   gem "shoulda-matchers", "~> 6.0"
+  gem 'simplecov', require: false
+  gem 'mutant', '~> 0.11'
+  gem 'mutant-rspec', '~> 0.11'
 end
 
 group :test do
   gem "database_cleaner-active_record"
   gem "faker"
+  gem 'simplecov', require: false
 end
