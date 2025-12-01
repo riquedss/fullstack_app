@@ -11,4 +11,3 @@ RSpec.configure do |config|
     end
   end
 end
-
