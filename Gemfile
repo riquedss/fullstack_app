@@ -53,4 +53,14 @@ group :development, :test do
   
   # Proxy reverso para Vite em desenvolvimento
   gem "rack-proxy"
+  
+  # RSpec para testes
+  gem "rspec-rails", "~> 7.0"
+  gem "factory_bot_rails"
+  gem "shoulda-matchers", "~> 6.0"
+end
+
+group :test do
+  gem "database_cleaner-active_record"
+  gem "faker"
 end
