@@ -8,8 +8,6 @@ RSpec.describe 'User Auth', type: :system do
     
     find('.toggle-auth-mode').click
 
-    page.save_screenshot('screenshot.png')
-
     fill_in 'Nome', with: 'Fulano'
     fill_in 'Email', with: 'fulano@email.com'
     fill_in 'Senha', with: 'senhasegura', match: :first
