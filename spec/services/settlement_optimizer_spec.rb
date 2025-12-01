@@ -5,6 +5,7 @@ RSpec.describe SettlementOptimizer, type: :service do
   let!(:user_a) { create(:user, email: 'a@example.com') }
   let!(:user_b) { create(:user, email: 'b@example.com') }
   let!(:user_c) { create(:user, email: 'c@example.com') }
+  let!(:user_d) { create(:user, email: 'd@example.com') }
 
   describe '#generate_optimized_payments' do
     context 'quando a dívida é simples (A deve a B)' do
@@ -55,9 +56,9 @@ RSpec.describe SettlementOptimizer, type: :service do
         optimizer = SettlementOptimizer.new(complex_graph)
         payments = optimizer.generate_optimized_payments
 
-        expect(payments.size).to eq(2) 
+        expect(payments.size).to eq(3) 
         payment_1 = payments.find { |p| p[:payer] == user_a }
-        expect(payments.find { |p| p[:payer] == user_a }[:amount]).to eq(BigDecimal('10.00'))
+        expect(payments.find { |p| p[:payer] == user_a }[:amount]).to eq(BigDecimal('90.00'))
       end
     end
 

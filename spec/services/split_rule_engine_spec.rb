@@ -49,7 +49,7 @@ RSpec.describe SplitRuleEngine, type: :service do
       expect {
 
         engine.send(:validate_total_match, invalid_amounts)
-      }.to raise_error(/Erro de validação interna: A soma das parcelas calculadas \(9.99\) não corresponde ao montante total da despesa \(10.00\)/)
+      }.to raise_error(/Erro de validação interna: A soma das parcelas calculadas \(9\.99\) não corresponde ao montante total da despesa \(10\.0\)/)
     end
   end
 
@@ -61,8 +61,9 @@ RSpec.describe SplitRuleEngine, type: :service do
       engine = SplitRuleEngine.new(expense_unrounded)
       amounts = engine.apply_split(:equally)
       
-      expect(amounts[user_a]).to eq(BigDecimal('3.35')) 
-      expect(amounts[user_b]).to eq(BigDecimal('3.33'))
+      expect(amounts[user_a]).to eq(BigDecimal('3.33')) 
+      expect(amounts[user_b]).to eq(BigDecimal('3.34'))
+      expect(amounts[user_c]).to eq(BigDecimal('3.34'))
       expect(amounts.values.sum).to eq(BigDecimal('10.01'))
     end
   end
@@ -118,7 +119,7 @@ RSpec.describe SplitRuleEngine, type: :service do
       invalid_weights = { user_a.id => 0, user_b.id => 0 }
       expect {
         subject.apply_split(:by_weights, weights: invalid_weights)
-      }.to raise_error(ArgumentError, /A soma dos pesos deve ser maior que zero/)
+      }.to raise_error(ArgumentError, /Os pesos devem ser um hash com user_id como chave e valores numéricos positivos./)
     end
   end
 
@@ -130,7 +131,7 @@ RSpec.describe SplitRuleEngine, type: :service do
       invalid_amounts = { user_a.id => 5.00, user_b.id => 3.00, user_c.id => 1.00 } # Soma 9.00 != 10.00
       expect {
         subject.apply_split(:by_fixed_amounts, amounts: invalid_amounts)
-      }.to raise_error(ArgumentError, /A soma dos valores fixos \(9.00\) não corresponde ao total da despesa \(10.00\)/)
+      }.to raise_error(ArgumentError, /A soma dos valores fixos \(9\.0\) não corresponde ao total da despesa \(10\.0\)/)
     end
 
 

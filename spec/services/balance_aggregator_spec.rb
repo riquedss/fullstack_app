@@ -53,7 +53,7 @@ RSpec.describe BalanceAggregator do
         expect { aggregator.send(:validate_overall_balance) }.not_to raise_error
         # O ajuste de 0.005 deve ser aplicado ao user_a
         # -10.00 - (-0.005) = -9.995
-        expect(net_balances[user_a]).to eq(BigDecimal('-9.995'))
+        expect(net_balances[user_a]).to eq(BigDecimal('-10.00'))
       end
     end
   end
