@@ -65,4 +65,5 @@ group :test do
   gem "faker"
   gem 'capybara'
   gem 'selenium-webdriver', '~> 4.8'
+  gem 'simplecov', require: false
 end
