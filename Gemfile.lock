@@ -94,6 +94,7 @@ GEM
     bundler-audit (0.9.3)
       bundler (>= 1.2.0)
       thor (~> 1.0)
+    byebug (12.0.0)
     capybara (3.40.0)
       addressable
       matrix
@@ -431,6 +432,7 @@ DEPENDENCIES
   bootsnap
   brakeman
   bundler-audit
+  byebug
   capybara
   database_cleaner-active_record
   debug
