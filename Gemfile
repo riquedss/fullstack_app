@@ -66,4 +66,8 @@ group :test do
   gem 'capybara'
   gem 'selenium-webdriver', '~> 4.8'
   gem 'simplecov', require: false
+  
+  # Gems para testes de performance
+  gem 'benchmark'
+  gem 'memory_profiler'
 end

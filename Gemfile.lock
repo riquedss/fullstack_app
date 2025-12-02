@@ -84,6 +84,7 @@ GEM
     bcrypt_pbkdf (1.1.1-arm64-darwin)
     bcrypt_pbkdf (1.1.1-x64-mingw-ucrt)
     bcrypt_pbkdf (1.1.1-x86_64-darwin)
+    benchmark (0.3.0)
     bigdecimal (3.3.1)
     bootsnap (1.19.0)
       msgpack (~> 1.2)
@@ -185,6 +186,7 @@ GEM
       net-smtp
     marcel (1.1.0)
     matrix (0.4.3)
+    memory_profiler (1.1.0)
     mini_magick (5.3.1)
       logger
     mini_mime (1.1.5)
@@ -425,6 +427,7 @@ PLATFORMS
 
 DEPENDENCIES
   bcrypt (~> 3.1.7)
+  benchmark
   bootsnap
   brakeman
   bundler-audit
@@ -437,6 +440,7 @@ DEPENDENCIES
   image_processing (~> 1.2)
   jbuilder
   kamal
+  memory_profiler
   mysql2 (~> 0.5)
   puma (>= 5.0)
   rack-cors
