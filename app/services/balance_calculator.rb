@@ -26,17 +26,17 @@ class BalanceCalculator
     end
 
     # Processar pagamentos (lógica Splitwise)
-    # No Splitwise: quando você paga, seu saldo MELHORA (reduz sua dívida)
+    # No Splitwise: quando você paga, seu saldo PIORA (aumenta sua dívida)
     # Exemplo: Se você deve R$ 100 (saldo = -100) e paga R$ 50, você agora deve R$ 50 (saldo = -50)
-    # Portanto: pagamentos ADICIONAM ao saldo do pagador (melhoram) e SUBTRAEM do saldo do recebedor
+    # Portanto: pagamentos SUBTRAEM do saldo do pagador (pioram) e ADICIONAM ao saldo do recebedor
     @group.payments.each do |payment|
-      # O pagador está pagando sua dívida, então MELHORA seu saldo (adiciona)
-      # Se estava -100 e paga 50, fica -50 (melhorou)
-      net_balances[payment.payer] += payment.amount
+      # O pagador está pagando sua dívida, então PIORA seu saldo (subtrai)
+      # Se estava -100 e paga 50, fica -150 (piorou antes da compensação)
+      net_balances[payment.payer] -= payment.amount
       
-      # O recebedor está recebendo pagamento, então PIORA seu saldo (subtrai)
-      # Se estava +100 e recebe 50, fica +50 (piorou, porque agora deve menos)
-      net_balances[payment.receiver] -= payment.amount
+      # O recebedor está recebendo pagamento, então MELHORA seu saldo (adiciona)
+      # Se estava +100 e recebe 50, fica +150 (melhorou antes da compensação)
+      net_balances[payment.receiver] += payment.amount
     end
 
     # Filtra balanços para membros ativos e garante que o total seja zero para o grupo
@@ -131,9 +131,7 @@ class BalanceCalculator
       if @members.any?
         net_balances[@members.first] -= total_sum
       end
-    else
-      # Se a diferença for muito pequena, podemos zerar tudo para evitar ruído.
-      net_balances.transform_values! { |amount| amount.round(2) }
     end
+    # Removido o arredondamento automático para manter precisão
   end
 end

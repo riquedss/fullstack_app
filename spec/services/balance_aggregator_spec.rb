@@ -51,8 +51,8 @@ RSpec.describe BalanceAggregator do
       
       it 'ajusta a diferença e não lança exceção' do
         expect { aggregator.send(:validate_overall_balance) }.not_to raise_error
-        # O ajuste de 0.005 deve ser aplicado ao user_a
-        # -10.00 - (-0.005) = -9.995
+        # Após o arredondamento inicial: user_a: -10.00, user_b: 10.01
+        # Total: 0.01, que é exatamente a tolerância, então não há ajuste
         expect(net_balances[user_a]).to eq(BigDecimal('-10.00'))
       end
     end

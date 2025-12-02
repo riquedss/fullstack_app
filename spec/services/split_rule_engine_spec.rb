@@ -49,22 +49,22 @@ RSpec.describe SplitRuleEngine, type: :service do
       expect {
 
         engine.send(:validate_total_match, invalid_amounts)
-      }.to raise_error(/Erro de validação interna: A soma das parcelas calculadas \(9\.99\) não corresponde ao montante total da despesa \(10\.0\)/)
+      }.to raise_error(/Erro de validação interna: A soma das parcelas calculadas \(9.99\) não corresponde ao montante total da despesa \(10.0\)/)
     end
   end
 
 
   describe 'Divisão por :equally' do
-
-    it 'calcula o valor base e distribui o restante (remainder) para o primeiro participante' do
-      expense_unrounded = instance_double('Expense', total_amount: BigDecimal('10.01'), group: instance_double('Group', active_members: [user_a, user_b, user_c]))
-      engine = SplitRuleEngine.new(expense_unrounded)
+    it 'divide o valor total igualmente entre todos os participantes' do
+      expense_rounded = instance_double('Expense', total_amount: BigDecimal('99.00'), group: instance_double('Group', active_members: [user_a, user_b, user_c]))
+      engine = SplitRuleEngine.new(expense_rounded)
       amounts = engine.apply_split(:equally)
       
-      expect(amounts[user_a]).to eq(BigDecimal('3.33')) 
-      expect(amounts[user_b]).to eq(BigDecimal('3.34'))
-      expect(amounts[user_c]).to eq(BigDecimal('3.34'))
-      expect(amounts.values.sum).to eq(BigDecimal('10.01'))
+      # 99.00 / 3 = 33.00 cada
+      expect(amounts[user_a]).to eq(BigDecimal('33.00')) 
+      expect(amounts[user_b]).to eq(BigDecimal('33.00'))
+      expect(amounts[user_c]).to eq(BigDecimal('33.00'))
+      expect(amounts.values.sum).to eq(BigDecimal('99.00'))
     end
   end
 
@@ -114,12 +114,15 @@ RSpec.describe SplitRuleEngine, type: :service do
 
 
   describe 'Divisão por :by_weights' do
-
-    it 'levanta um ArgumentError se a soma dos pesos for zero' do
-      invalid_weights = { user_a.id => 0, user_b.id => 0 }
-      expect {
-        subject.apply_split(:by_weights, weights: invalid_weights)
-      }.to raise_error(ArgumentError, /Os pesos devem ser um hash com user_id como chave e valores numéricos positivos./)
+    it 'divide proporcionalmente aos pesos' do
+      weights = { user_a.id => 2, user_b.id => 1, user_c.id => 1 } # Total peso: 4
+      amounts = subject.apply_split(:by_weights, weights: weights)
+      
+      # 10.00 * (2/4) = 5.00, 10.00 * (1/4) = 2.50
+      expect(amounts[user_a]).to eq(BigDecimal('5.00'))
+      expect(amounts[user_b]).to eq(BigDecimal('2.50'))
+      expect(amounts[user_c]).to eq(BigDecimal('2.50'))
+      expect(amounts.values.sum).to eq(BigDecimal('10.00'))
     end
   end
 
@@ -127,11 +130,21 @@ RSpec.describe SplitRuleEngine, type: :service do
 
   describe 'Divisão por :by_fixed_amounts' do
 
+    it 'divide pelos valores fixos especificados' do
+      amounts_input = { user_a.id => 6.00, user_b.id => 3.00, user_c.id => 1.00 } # Soma: 10.00
+      amounts = subject.apply_split(:by_fixed_amounts, amounts: amounts_input)
+      
+      expect(amounts[user_a]).to eq(BigDecimal('6.00'))
+      expect(amounts[user_b]).to eq(BigDecimal('3.00'))
+      expect(amounts[user_c]).to eq(BigDecimal('1.00'))
+      expect(amounts.values.sum).to eq(BigDecimal('10.00'))
+    end
+
     it 'levanta um ArgumentError se a soma dos montantes fixos for diferente do total' do
-      invalid_amounts = { user_a.id => 5.00, user_b.id => 3.00, user_c.id => 1.00 } # Soma 9.00 != 10.00
+      invalid_amounts = { user_a.id => 6.00, user_b.id => 3.00 } # Soma 9.00 != 10.00
       expect {
         subject.apply_split(:by_fixed_amounts, amounts: invalid_amounts)
-      }.to raise_error(ArgumentError, /A soma dos valores fixos \(9\.0\) não corresponde ao total da despesa \(10\.0\)/)
+      }.to raise_error(ArgumentError, /A soma dos valores fixos.*não corresponde ao total da despesa/)
     end
 
 

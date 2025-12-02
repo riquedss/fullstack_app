@@ -52,7 +52,7 @@ RSpec.describe SettlementOptimizer, type: :service do
         }
       }
 
-      it 'gera o conjunto mínimo de 2 pagamentos otimizados' do
+      it 'gera o conjunto mínimo de 3 pagamentos otimizados' do
         optimizer = SettlementOptimizer.new(complex_graph)
         payments = optimizer.generate_optimized_payments
 
