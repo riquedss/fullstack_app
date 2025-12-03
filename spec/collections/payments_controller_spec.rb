@@ -26,7 +26,7 @@ RSpec.describe PaymentsController, type: :controller do
       session[:user_id] = non_member.id
 
       # Tenta acessar um grupo inexistente
-      process method, action, params: { group_id: 99999, id: payment.id }
+      process action, method: method, params: { group_id: 99999, id: payment.id }
       expect(response).to have_http_status(:not_found)
       # O JSON de erro agora virá do Controller::set_group
       expect(JSON.parse(response.body)['message']).to include('Grupo não encontrado')
@@ -36,7 +36,7 @@ RSpec.describe PaymentsController, type: :controller do
   # Testa a falha do before_action :set_payment
   shared_examples 'returns 404 for missing payment' do |action, method|
     it 'retorna 404 Not Found se o pagamento não for encontrado no grupo' do
-      process method, action, params: { group_id: group.id, id: 99999 }
+      process action, method: method, params: { group_id: group.id, id: 99999 }
       expect(response).to have_http_status(:not_found)
       # O JSON de erro agora virá do Controller::set_payment
       expect(JSON.parse(response.body)['message']).to include('Pagamento não encontrado')

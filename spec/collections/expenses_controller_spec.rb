@@ -40,7 +40,7 @@ RSpec.describe ExpensesController, type: :controller do
       session[:user_id] = non_member.id
 
       # Tenta acessar um grupo inexistente
-      process method, action, params: { group_id: 99999, id: expense.id }
+      process action, method: method, params: { group_id: 99999, id: expense.id }
       expect(response).to have_http_status(:not_found)
       expect(JSON.parse(response.body)['message']).to include('Grupo não encontrado')
     end
@@ -49,7 +49,7 @@ RSpec.describe ExpensesController, type: :controller do
   # Testa a falha do before_action :set_expense
   shared_examples 'returns 404 for missing expense' do |action, method|
     it 'retorna 404 Not Found se a despesa não for encontrada no grupo' do
-      process method, action, params: { group_id: group.id, id: 99999 }
+      process action, method: method, params: { group_id: group.id, id: 99999 }
       expect(response).to have_http_status(:not_found)
       expect(JSON.parse(response.body)['message']).to include('Despesa não encontrada')
     end
@@ -247,8 +247,8 @@ RSpec.describe ExpensesController, type: :controller do
 
       it 'retorna 422 se a atualização da despesa falhar (cobre o bloco else/rollback)' do
         # Força a falha do update da despesa
-        allow(expense).to receive(:update).and_return(false)
-        allow(expense).to receive_message_chain(:errors, :full_messages).and_return(['Não pode ser atualizado.'])
+        allow_any_instance_of(Expense).to receive(:update).and_return(false)
+        allow_any_instance_of(Expense).to receive_message_chain(:errors, :full_messages).and_return(['Não pode ser atualizado.'])
 
         patch :update, params: { group_id: group.id, id: expense.id }.merge(update_params)
 
@@ -298,8 +298,8 @@ RSpec.describe ExpensesController, type: :controller do
 
       it 'retorna 422 Unprocessable Entity se a exclusão falhar (cobre o bloco else)' do
         # Força a falha do destroy
-        allow(expense).to receive(:destroy).and_return(false)
-        allow(expense).to receive_message_chain(:errors, :full_messages).and_return(['Não pode ser excluído.'])
+        allow_any_instance_of(Expense).to receive(:destroy).and_return(false)
+        allow_any_instance_of(Expense).to receive_message_chain(:errors, :full_messages).and_return(['Não pode ser excluído.'])
 
         expect {
           delete :destroy, params: { group_id: group.id, id: expense.id }
@@ -395,8 +395,9 @@ RSpec.describe ExpensesController, type: :controller do
     end
     
     it 'converte ActionController::Parameters para Hash se necessário (cobre o params_hash.to_h)' do
-      # Simula o ActionController::Parameters
+      # Simula o ActionController::Parameters permitido
       mock_params = ActionController::Parameters.new({ 'amounts' => { '1' => '50' } })
+      allow(mock_params).to receive(:permitted?).and_return(true)
       
       normalized = controller_instance.send(:normalize_splitting_params, mock_params, :by_fixed_amounts)
       

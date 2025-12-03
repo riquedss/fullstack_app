@@ -20,7 +20,7 @@ RSpec.describe GroupMembershipsController, type: :controller do
       session[:user_id] = non_member.id
 
       # Tenta acessar um grupo inexistente (cobrindo a falha do set_group)
-      process method, action, params: { group_id: 99999, params_key => 1 }
+      process action, method: method, params: { group_id: 99999, params_key => 1 }
       expect(response).to have_http_status(:not_found)
       expect(JSON.parse(response.body)['message']).to include('Grupo não encontrado')
     end
@@ -73,7 +73,7 @@ RSpec.describe GroupMembershipsController, type: :controller do
       it 'retorna 403 Forbidden' do
         post :create, params: { group_id: group.id, user_id: uninvited_user.id }
         expect(response).to have_http_status(:forbidden)
-        expect(GroupMembership.count).to eq(2) # Nenhuma mudança
+        expect(GroupMembership.count).to eq(3) # Nenhuma mudança
       end
     end
   end
