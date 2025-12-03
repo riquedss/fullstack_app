@@ -53,7 +53,7 @@ RSpec.describe 'TransactionSimplifier Integration', type: :integration do
 
       expect(simplified[user_a][user_b]).to eq(BigDecimal('20.00'))
       expect(simplified[user_b][user_c]).to eq(BigDecimal('10.00'))
-      expect(simplified[user_c]).not_to have_key(user_a)
+      expect(simplified.keys).not_to include(user_c)
     end
 
     it 'remove dívidas muito pequenas' do

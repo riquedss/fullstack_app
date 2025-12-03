@@ -82,6 +82,7 @@ const GroupForm: React.FC<GroupFormProps> = ({ existingGroup, onFormSubmit, onCa
         <input
           type="text"
           id="name"
+          name="Nome do Grupo"
           value={name}
           onChange={(e) => setName(e.target.value)}
           required
