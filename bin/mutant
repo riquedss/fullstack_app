@@ -1,0 +1,85 @@
+#!/usr/bin/env ruby
+# Script para executar mutation testing com Mutant
+
+require 'bundler/setup'
+
+# Carregar ambiente Rails primeiro
+require File.expand_path('../config/environment', __dir__)
+
+# Verificar se estamos no ambiente de teste
+unless Rails.env.test?
+  puts "❌ Erro: Mutant deve ser executado no ambiente de teste"
+  puts "Execute: RAILS_ENV=test bin/mutant"
+  exit 1
+end
+
+puts "🧬 Iniciando Mutation Testing com Mutant"
+puts "=" * 50
+
+# Opções de execução baseadas nos argumentos
+target = ARGV[0]
+options = ARGV[1..-1]
+
+case target.downcase
+when 'models'
+  puts "🔍 Testando mutações nos Modelos..."
+  system("bundle exec mutant run --usage opensource --integration rspec -I . -r config/environment -- User Group Payment Expense GroupMembership ExpenseParticipant")
+  
+when 'services'
+  puts "⚙️ Testando mutações nos Serviços..."
+  system("bundle exec mutant run --usage opensource --integration rspec -- 'app/services/*'")
+  
+when 'user'
+  puts "👤 Testando mutações no User model..."
+  system("bundle exec mutant run --usage opensource --integration rspec -I . -r config/environment -- 'User'")
+  
+when 'payment'
+  puts "💰 Testando mutações no Payment model..."
+  system("bundle exec mutant run --usage opensource --integration rspec -I . -r config/environment -- 'Payment'")
+  
+when 'expense'
+  puts "🧾 Testando mutações no Expense model..."
+  system("bundle exec mutant run --usage opensource --integration rspec -I . -r config/environment -- 'Expense'")
+  
+when 'split_engine'
+  puts "⚡ Testando mutações no SplitRuleEngine..."
+  system("bundle exec mutant run --usage opensource --integration rspec -I . -r config/environment -- 'SplitRuleEngine'")
+  
+when 'help', '--help', '-h'
+  puts <<~HELP
+    🧬 Mutant - Mutation Testing Script
+    
+    Uso:
+      bin/mutant [alvo] [opções]
+    
+    Alvos disponíveis:
+      models     - Testa todos os modelos
+      services   - Testa todos os serviços
+      user       - Testa apenas o User model
+      payment    - Testa apenas o Payment model
+      expense    - Testa apenas o Expense model
+      split_engine - Testa apenas o SplitRuleEngine
+    
+    Exemplos:
+      bin/mutant models
+      bin/mutant user
+      bin/mutant services
+    
+    O que é Mutation Testing?
+    Mutation testing modifica o código fonte (mutações) para verificar
+    se os testes detectam essas mudanças. Se uma mutação sobrevive,
+    significa que os testes não são bons o suficiente.
+    
+    🔴 Mutação sobrevivente = Testes fracos
+    🟢 Mutação morta = Testes fortes
+  HELP
+  
+else
+  puts "🔍 Testando mutações em todo o código..."
+  puts "Isso pode levar vários minutos... ⏳"
+  system("bundle exec mutant run --usage opensource --integration rspec")
+end
+
+puts "\n✅ Mutation testing concluído!"
+puts "📊 Verifique o resultado acima para mutações sobreviventes."
+puts "🔴 Mutações sobreviventes indicam testes que precisam melhorar."

@@ -70,6 +70,10 @@ group :test do
   gem 'selenium-webdriver', '~> 4.8'
   gem 'simplecov', require: false
   
+  # Mutation testing
+  gem 'mutant', '~> 0.12'
+  gem 'mutant-rspec', '~> 0.12'
+  
   # Gems para testes de performance
   gem 'benchmark'
   gem 'memory_profiler'
