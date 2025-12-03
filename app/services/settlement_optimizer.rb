@@ -1,12 +1,12 @@
 # fullstack_app/app/services/settlement_optimizer.rb
-require 'bigdecimal'
+require "bigdecimal"
 
 class SettlementOptimizer
   # Inicializa o SettlementOptimizer com o grafo de dívidas simplificado.
   # O grafo deve ser no formato { devedor => { credor => montante } }.
   # @param simplified_debt_graph [Hash<User, Hash<User, BigDecimal>>] Grafo de dívidas.
   # @param tolerance [BigDecimal] Tolerância para considerar um balanço como zero.
-  def initialize(simplified_debt_graph, tolerance: BigDecimal('0.01'))
+  def initialize(simplified_debt_graph, tolerance: BigDecimal("0.01"))
     @simplified_debt_graph = simplified_debt_graph
     @tolerance = tolerance
   end
@@ -16,7 +16,7 @@ class SettlementOptimizer
   # @return [Array<Hash>] Uma lista de pagamentos sugeridos, cada um com :payer, :receiver, :amount.
   def generate_optimized_payments
     # Inicializa os saldos líquidos a partir do grafo de dívidas para identificar credores e devedores líquidos.
-    balances = Hash.new { |h, k| h[k] = BigDecimal('0.00') }
+    balances = Hash.new { |h, k| h[k] = BigDecimal("0.00") }
 
     @simplified_debt_graph.each do |debtor, creditors_hash|
       creditors_hash.each do |creditor, amount|
@@ -46,7 +46,7 @@ class SettlementOptimizer
       credit_amount = credit_amount_raw
 
       # Determina o valor do pagamento, que é o mínimo entre a dívida e o crédito.
-      payment_amount = [debt_amount, credit_amount].min
+      payment_amount = [ debt_amount, credit_amount ].min
 
       if payment_amount > @tolerance # Apenas adiciona pagamentos significativos
         optimized_payments << {
@@ -90,7 +90,7 @@ class SettlementOptimizer
     # para manter as listas de devedores/credores ordenadas dinamicamente.
     new_entry = { user => amount }
 
-    if amount > BigDecimal('0.00') # Credor
+    if amount > BigDecimal("0.00") # Credor
       index = hash.keys.bsearch_index { |k| hash[k] <= amount } || hash.size
     else # Devedor
       index = hash.keys.bsearch_index { |k| hash[k] >= amount } || hash.size

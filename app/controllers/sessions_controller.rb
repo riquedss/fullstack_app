@@ -10,13 +10,13 @@ class SessionsController < ApplicationController
       session[:user_id] = user.id
       render json: { logged_in: true, user: user }
     else
-      render json: { logged_in: false, message: 'Email ou senha inválidos.' }, status: :unauthorized
+      render json: { logged_in: false, message: "Email ou senha inválidos." }, status: :unauthorized
     end
   end
 
   def destroy
     session[:user_id] = nil
-    render json: { logged_in: false, message: 'Logout realizado com sucesso.' }
+    render json: { logged_in: false, message: "Logout realizado com sucesso." }
   end
 
   def logged_in

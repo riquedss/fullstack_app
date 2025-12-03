@@ -1,6 +1,6 @@
 class Payment < ApplicationRecord
-  belongs_to :payer, class_name: 'User'
-  belongs_to :receiver, class_name: 'User'
+  belongs_to :payer, class_name: "User"
+  belongs_to :receiver, class_name: "User"
   belongs_to :group
 
   validates :amount, presence: true, numericality: { greater_than: 0 }

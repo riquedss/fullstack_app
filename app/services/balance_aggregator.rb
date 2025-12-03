@@ -1,12 +1,12 @@
 # fullstack_app/app/services/balance_aggregator.rb
-require 'bigdecimal'
+require "bigdecimal"
 
 class BalanceAggregator
   # Inicializa o BalanceAggregator com os balanços líquidos e detalhados.
   # @param net_balances [Hash<User, BigDecimal>] Saldos líquidos de cada usuário (calculado pelo BalanceCalculator).
   # @param detailed_balances [Hash<User, Hash<User, BigDecimal>>] Dívidas diretas entre usuários (calculado pelo BalanceCalculator).
   # @param tolerance [BigDecimal] Tolerância para considerar pequenas discrepâncias de arredondamento como zero.
-  def initialize(net_balances, detailed_balances, tolerance: BigDecimal('0.01'))
+  def initialize(net_balances, detailed_balances, tolerance: BigDecimal("0.01"))
     @net_balances = net_balances.transform_values(&:round) # Garante arredondamento inicial
     @detailed_balances = detailed_balances.transform_values { |v| v.transform_values(&:round) } # Garante arredondamento inicial
     @tolerance = tolerance
@@ -30,7 +30,7 @@ class BalanceAggregator
     if total_net_sum.abs > @tolerance
       Rails.logger.error("Inconsistência grave no balanço agregado: Soma total é #{total_net_sum}. Esperado 0.")
       raise "Inconsistência grave no balanço: a soma total dos saldos líquidos do grupo não é zero. (Diferença: #{total_net_sum})"
-    elsif total_net_sum != BigDecimal('0.00') # Se estiver dentro da tolerância, mas não for exatamente zero
+    elsif total_net_sum != BigDecimal("0.00") # Se estiver dentro da tolerância, mas não for exatamente zero
       # Ajustar a pequena diferença para um usuário arbitrário
       Rails.logger.warn("Pequena inconsistência de balanço (arredondamento): Soma total é #{total_net_sum}. Ajustando.")
       adjust_small_discrepancy(total_net_sum)
@@ -76,14 +76,14 @@ class BalanceAggregator
   # @return [Hash<User, Hash<User, BigDecimal>>] Grafo de dívidas simplificado.
   def build_simplified_debt_graph
     # Começa com as dívidas diretas e as ajusta com base nos saldos líquidos.
-    simplified_graph = Hash.new { |h1, k1| h1[k1] = Hash.new { |h2, k2| h2[k2] = BigDecimal('0.00') } }
+    simplified_graph = Hash.new { |h1, k1| h1[k1] = Hash.new { |h2, k2| h2[k2] = BigDecimal("0.00") } }
 
     # Popula o grafo com os saldos líquidos: quem tem saldo negativo deve, quem tem saldo positivo recebe.
     # Isso transforma os saldos líquidos em um grafo de dívidas/créditos mais abstrato.
-    debtors = @net_balances.select { |_user, amount| amount < BigDecimal('0.00') }
+    debtors = @net_balances.select { |_user, amount| amount < BigDecimal("0.00") }
                            .sort_by { |_user, amount| amount } # Maiores devedores primeiro
                            .to_h
-    creditors = @net_balances.select { |_user, amount| amount > BigDecimal('0.00') }
+    creditors = @net_balances.select { |_user, amount| amount > BigDecimal("0.00") }
                              .sort_by { |_user, amount| -amount } # Maiores credores primeiro
                              .to_h
 
@@ -94,13 +94,13 @@ class BalanceAggregator
 
     debtors_copy.each do |debtor, debt_amount_raw|
       debt_amount = debt_amount_raw.abs # Valor absoluto da dívida
-      
+
       creditors_copy.each do |creditor, credit_amount_raw|
         credit_amount = credit_amount_raw # Valor absoluto do crédito
 
         next if debt_amount <= @tolerance || credit_amount <= @tolerance || debtor == creditor
 
-        payment_amount = [debt_amount, credit_amount].min
+        payment_amount = [ debt_amount, credit_amount ].min
 
         simplified_graph[debtor][creditor] += payment_amount
 
@@ -110,7 +110,7 @@ class BalanceAggregator
         break if debt_amount <= @tolerance # Se o devedor já quitou sua parte
       end
     end
-    
+
     # Limpa as entradas zero
     cleaned_graph = {}
     simplified_graph.each do |debtor, creditors_hash|

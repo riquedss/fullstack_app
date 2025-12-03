@@ -6,4 +6,3 @@ FactoryBot.define do
     joined_at { Time.current }
   end
 end
-

@@ -49,18 +49,17 @@ RSpec.describe Payment, type: :model do
     end
 
     context 'Pagador deve ser membro ativo do grupo' do
-
       it 'não sendo membro ativo do grupo' do
         allow(group).to receive(:active_members).and_return([])
-        
+
         payment.payer_must_be_group_member
 
         expect(payment.errors[:payer]).to include('deve ser um membro ativo do grupo')
       end
 
       it 'sendo membro ativo do grupo' do
-        allow(group).to receive(:active_members).and_return([payer])
-        
+        allow(group).to receive(:active_members).and_return([ payer ])
+
         payment.payer_must_be_group_member
 
         expect(payment.errors[:payer]).to be_empty
@@ -70,15 +69,15 @@ RSpec.describe Payment, type: :model do
     context 'Recebedor deve ser membro ativo do grupo' do
       it 'não sendo membro ativo do grupo' do
         allow(group).to receive(:active_members).and_return([])
-        
+
         payment.receiver_must_be_group_member
 
         expect(payment.errors[:receiver]).to include('deve ser um membro ativo do grupo')
       end
 
       it 'sendo membro ativo do grupo' do
-        allow(group).to receive(:active_members).and_return([receiver])
-        
+        allow(group).to receive(:active_members).and_return([ receiver ])
+
         payment.receiver_must_be_group_member
 
         expect(payment.errors[:receiver]).to be_empty

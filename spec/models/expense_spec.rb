@@ -5,7 +5,7 @@ RSpec.describe Expense, type: :model do
   let(:group) { create(:group) }
   let(:expense) { build(:expense, payer: payer, group: group) }
   let(:expense_participant) { build(:expense_participant, expense: expense, user: payer) }
-  let(:expense_participants) { [expense_participant] }
+  let(:expense_participants) { [ expense_participant ] }
 
   describe 'Validações' do
     it { should validate_presence_of(:description) }
@@ -58,15 +58,15 @@ RSpec.describe Expense, type: :model do
     context 'Pagador deve ser membro ativo do grupo' do
       it 'não sendo membro ativo do grupo' do
         allow(group).to receive(:active_members).and_return([])
-        
+
         expense.payer_must_be_group_member
 
         expect(expense.errors[:payer]).to include('deve ser um membro ativo do grupo')
       end
 
       it 'sendo membro ativo do grupo' do
-        allow(group).to receive(:active_members).and_return([payer])
-        
+        allow(group).to receive(:active_members).and_return([ payer ])
+
         expense.payer_must_be_group_member
 
         expect(expense.errors[:payer]).to be_empty
@@ -76,8 +76,8 @@ RSpec.describe Expense, type: :model do
     context 'Os participantes devem ser membros ativos do grupo.' do
       it 'sendo membro ativo do grupo' do
         allow(expense).to receive(:expense_participants).and_return(expense_participants)
-        allow(group).to receive(:active_members).and_return([payer])
-        
+        allow(group).to receive(:active_members).and_return([ payer ])
+
         expense.participants_must_be_group_members
 
         expect(expense.errors[:expense_participants]).to be_empty
@@ -86,7 +86,7 @@ RSpec.describe Expense, type: :model do
       it 'não sendo membro ativo do grupo' do
         allow(expense).to receive(:expense_participants).and_return(expense_participants)
         allow(group).to receive(:active_members).and_return([])
-        
+
         expense.participants_must_be_group_members
 
         expect(expense.errors[:expense_participants]).to include('inclui um usuário que não é membro ativo do grupo')

@@ -1,5 +1,5 @@
 class UsersController < ApplicationController
-  before_action :authenticate_user!, only: [:index]
+  before_action :authenticate_user!, only: [ :index ]
 
   # GET /users?search=termo
   def index
@@ -10,7 +10,7 @@ class UsersController < ApplicationController
     end
     # Limita a 50 resultados para performance
     users = users.limit(50)
-    render json: users.as_json(only: [:id, :name, :email])
+    render json: users.as_json(only: [ :id, :name, :email ])
   end
 
   def create
@@ -28,7 +28,7 @@ class UsersController < ApplicationController
     if user
       render json: { user: user }
     else
-      render json: { message: 'Usuário não encontrado.' }, status: :not_found
+      render json: { message: "Usuário não encontrado." }, status: :not_found
     end
   end
 

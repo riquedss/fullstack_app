@@ -8,4 +8,3 @@ FactoryBot.define do
     payer { association :user }
   end
 end
-

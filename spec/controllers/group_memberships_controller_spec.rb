@@ -8,7 +8,7 @@ RSpec.describe GroupMembershipsController, type: :controller do
 
   # Garante que o usuário logado é o criador do grupo (que tem permissão)
   before { session[:user_id] = creator.id }
-  
+
   # Adiciona o criador como membro do grupo (necessário pelo set_group)
 
 
@@ -50,16 +50,16 @@ RSpec.describe GroupMembershipsController, type: :controller do
         post :create, params: { group_id: group.id, user_id: 99999 }
         expect(response).to have_http_status(:not_found)
       end
-      
+
       it 'retorna 422 se a criação falhar por falha de validação do modelo' do
         # Força o 'save' a retornar false, cobrindo o bloco 'else' no controller
         allow_any_instance_of(GroupMembership).to receive(:save).and_return(false)
-        allow_any_instance_of(GroupMembership).to receive_message_chain(:errors, :full_messages).and_return(['Erro forçado de validação.'])
+        allow_any_instance_of(GroupMembership).to receive_message_chain(:errors, :full_messages).and_return([ 'Erro forçado de validação.' ])
 
         expect {
           post :create, params: { group_id: group.id, user_id: uninvited_user.id }
         }.not_to change(GroupMembership, :count)
-        
+
         expect(response).to have_http_status(:unprocessable_entity)
         expect(JSON.parse(response.body)['errors']).to include('Erro forçado de validação.')
       end
@@ -106,12 +106,12 @@ RSpec.describe GroupMembershipsController, type: :controller do
       it 'retorna 422 se a remoção falhar' do
         # Força o 'destroy' a retornar false, cobrindo o bloco 'else' no controller
         allow_any_instance_of(GroupMembership).to receive(:destroy).and_return(false)
-        allow_any_instance_of(GroupMembership).to receive_message_chain(:errors, :full_messages).and_return(['Erro forçado de remoção.'])
+        allow_any_instance_of(GroupMembership).to receive_message_chain(:errors, :full_messages).and_return([ 'Erro forçado de remoção.' ])
 
         expect {
           delete :destroy, params: { group_id: group.id, id: membership.id }
         }.not_to change(GroupMembership, :count)
-        
+
         expect(response).to have_http_status(:unprocessable_entity)
         expect(JSON.parse(response.body)['errors']).to include('Erro forçado de remoção.')
       end

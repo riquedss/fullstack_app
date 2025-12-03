@@ -44,7 +44,7 @@ RSpec.describe 'SettlementOptimizer Integration', type: :integration do
 
     it 'lida com vários devedores e credores' do
       simplified_graph = {
-        user_b => { 
+        user_b => {
           user_a => BigDecimal('40.00'),
           user_c => BigDecimal('20.00')
         },
@@ -58,8 +58,8 @@ RSpec.describe 'SettlementOptimizer Integration', type: :integration do
 
       payments.each do |payment|
         expect(payment[:amount]).to be > BigDecimal('0')
-        expect([user_a, user_b, user_c]).to include(payment[:payer])
-        expect([user_a, user_b, user_c]).to include(payment[:receiver])
+        expect([ user_a, user_b, user_c ]).to include(payment[:payer])
+        expect([ user_a, user_b, user_c ]).to include(payment[:receiver])
       end
     end
 

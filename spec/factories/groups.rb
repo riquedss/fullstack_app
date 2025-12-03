@@ -3,7 +3,7 @@ FactoryBot.define do
     name { Faker::Company.unique.name }
     description { Faker::Lorem.sentence }
     creator { association :user }
-    
+
     after(:create) do |group|
       # Adiciona o criador como membro ativo
       group.group_memberships.create!(
@@ -14,4 +14,3 @@ FactoryBot.define do
     end
   end
 end
-

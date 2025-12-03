@@ -9,7 +9,7 @@ class ApplicationController < ActionController::API
 
   def authenticate_user!
     unless current_user
-      render json: { status: 401, message: 'Você precisa estar logado para acessar esta função.' }, status: :unauthorized
+      render json: { status: 401, message: "Você precisa estar logado para acessar esta função." }, status: :unauthorized
     end
   end
 end

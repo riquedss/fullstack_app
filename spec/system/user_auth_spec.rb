@@ -5,7 +5,7 @@ RSpec.describe 'User Auth', type: :system do
     visit '/'
 
     expect(page).to have_content('Bem-vindo ao Sistema de Divisão de Contas!', wait: 10)
-    
+
     find('.toggle-auth-mode').click
 
     fill_in 'Nome', with: 'Fulano'

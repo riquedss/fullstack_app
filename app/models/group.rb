@@ -1,5 +1,5 @@
 class Group < ApplicationRecord
-  belongs_to :creator, class_name: 'User'
+  belongs_to :creator, class_name: "User"
   has_many :group_memberships
   has_many :members, through: :group_memberships, source: :user # Adicionado para fácil acesso aos membros
   has_many :expenses
@@ -10,7 +10,7 @@ class Group < ApplicationRecord
   # Calcula o saldo líquido de cada usuário no grupo.
   # @return [Hash<User, BigDecimal>] Um hash mapeando usuários para seus saldos líquidos.
   def calculate_balances
-    balances = Hash.new { |hash, key| hash[key] = BigDecimal('0.00') }
+    balances = Hash.new { |hash, key| hash[key] = BigDecimal("0.00") }
 
     # Calcular balanços a partir das despesas
     expenses.includes(expense_participants: :user).each do |expense|
@@ -32,6 +32,6 @@ class Group < ApplicationRecord
 
   # Helper para obter membros ativos do grupo
   def active_members
-    members.where(group_memberships: { status: 'active' })
+    members.where(group_memberships: { status: "active" })
   end
 end

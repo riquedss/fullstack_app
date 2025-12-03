@@ -1,5 +1,5 @@
 # fullstack_app/app/services/balance_calculator.rb
-require 'bigdecimal'
+require "bigdecimal"
 
 class BalanceCalculator
   def initialize(group)
@@ -12,7 +12,7 @@ class BalanceCalculator
   # Um saldo negativo significa que o usuário tem débito (deve pagar).
   # @return [Hash<User, BigDecimal>] Um hash mapeando usuários para seus saldos líquidos.
   def calculate_net_balances
-    net_balances = Hash.new { |hash, key| hash[key] = BigDecimal('0.00') }
+    net_balances = Hash.new { |hash, key| hash[key] = BigDecimal("0.00") }
 
     # Processar despesas
     @group.expenses.each do |expense|
@@ -33,7 +33,7 @@ class BalanceCalculator
       # O pagador está pagando sua dívida, então PIORA seu saldo (subtrai)
       # Se estava -100 e paga 50, fica -150 (piorou antes da compensação)
       net_balances[payment.payer] -= payment.amount
-      
+
       # O recebedor está recebendo pagamento, então MELHORA seu saldo (adiciona)
       # Se estava +100 e recebe 50, fica +150 (melhorou antes da compensação)
       net_balances[payment.receiver] += payment.amount
@@ -52,7 +52,7 @@ class BalanceCalculator
   def calculate_detailed_balances
     # Inicializa um grafo de dívidas diretas entre cada par de usuários
     # { user_id_devedor => { user_id_credor => montante_devido } }
-    direct_debts = Hash.new { |h1, k1| h1[k1] = Hash.new { |h2, k2| h2[k2] = BigDecimal('0.00') } }
+    direct_debts = Hash.new { |h1, k1| h1[k1] = Hash.new { |h2, k2| h2[k2] = BigDecimal("0.00") } }
 
     # Processar despesas para construir dívidas diretas
     @group.expenses.each do |expense|
@@ -78,27 +78,27 @@ class BalanceCalculator
       amount_to_settle = payment.amount
 
       # Caso 1: Pagador devia diretamente ao recebedor - reduz a dívida
-      if direct_debts[payment.payer][payment.receiver] > BigDecimal('0.00')
+      if direct_debts[payment.payer][payment.receiver] > BigDecimal("0.00")
         debt = direct_debts[payment.payer][payment.receiver]
         if amount_to_settle >= debt
           # Pagamento quita toda a dívida
-          direct_debts[payment.payer][payment.receiver] = BigDecimal('0.00')
+          direct_debts[payment.payer][payment.receiver] = BigDecimal("0.00")
           amount_to_settle -= debt
         else
           # Pagamento quita parte da dívida
           direct_debts[payment.payer][payment.receiver] -= amount_to_settle
-          amount_to_settle = BigDecimal('0.00')
+          amount_to_settle = BigDecimal("0.00")
         end
       end
 
       # Caso 2: Se o pagador não devia ao recebedor, mas ainda há montante a liquidar,
       # isso significa que o pagador está pagando mais do que devia (criando crédito reverso)
       # ou pagando dívidas indiretas. Isso será resolvido pelo BalanceAggregator e SettlementOptimizer.
-      # Por enquanto, se houver montante restante, podemos criar uma "dívida reversa" 
+      # Por enquanto, se houver montante restante, podemos criar uma "dívida reversa"
       # (o recebedor agora deve ao pagador)
-      if amount_to_settle > BigDecimal('0.00')
+      if amount_to_settle > BigDecimal("0.00")
         # O pagador pagou mais do que devia, então o recebedor agora deve ao pagador
-        direct_debts[payment.receiver][payment.payer] ||= BigDecimal('0.00')
+        direct_debts[payment.receiver][payment.payer] ||= BigDecimal("0.00")
         direct_debts[payment.receiver][payment.payer] += amount_to_settle
       end
     end
@@ -106,7 +106,7 @@ class BalanceCalculator
     # Remove dívidas zeradas e usuários sem dívidas/créditos
     cleaned_debts = {}
     direct_debts.each do |debtor, creditors_hash|
-      cleaned_creditors = creditors_hash.select { |_creditor, amount| amount > BigDecimal('0.00') }
+      cleaned_creditors = creditors_hash.select { |_creditor, amount| amount > BigDecimal("0.00") }
       cleaned_debts[debtor] = cleaned_creditors if cleaned_creditors.any?
     end
 
@@ -125,7 +125,7 @@ class BalanceCalculator
   # @param net_balances [Hash<User, BigDecimal>] O hash de balanços líquidos para ajustar.
   def ensure_total_balance_is_zero(net_balances)
     total_sum = net_balances.values.sum
-    if total_sum.abs > BigDecimal('0.01') # Tolerância para pequenas discrepâncias de arredondamento
+    if total_sum.abs > BigDecimal("0.01") # Tolerância para pequenas discrepâncias de arredondamento
       Rails.logger.warn("Inconsistência de balanço no grupo #{@group.id}: Soma total é #{total_sum}. Esperado 0.")
       # Tenta ajustar para um membro aleatório se a soma não for zero
       if @members.any?

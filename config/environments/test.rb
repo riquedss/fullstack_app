@@ -18,11 +18,11 @@ Rails.application.configure do
   # Configure public file server for tests with cache-control for performance.
   config.public_file_server.enabled = true
   config.public_file_server.headers = { "cache-control" => "public, max-age=3600" }
-  
+
   # Serve static files from client/dist in test environment (same as production)
   # This allows the frontend React app to load its assets (JS, CSS, images)
   # Serve all files from client/dist/assets and vite.svg
-  config.middleware.insert_before ActionDispatch::Static, ActionDispatch::Static, Rails.root.join('client', 'dist').to_s
+  config.middleware.insert_before ActionDispatch::Static, ActionDispatch::Static, Rails.root.join("client", "dist").to_s
 
   # Show full error reports.
   config.consider_all_requests_local = true

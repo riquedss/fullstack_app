@@ -16,7 +16,7 @@ Capybara.register_driver :selenium_chrome_headless do |app|
   options.add_argument('--disable-gpu')
   options.add_argument('--disable-software-rasterizer')
   options.add_argument('--window-size=1920,1080')
-  
+
   # Selenium Manager handles driver management automatically
   Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
 end
@@ -32,4 +32,3 @@ RSpec.configure do |config|
     driven_by :selenium_chrome_headless
   end
 end
-

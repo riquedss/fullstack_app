@@ -50,13 +50,13 @@ group :development, :test do
 
   # Carrega variáveis do .env automaticamente em dev e test
   gem "dotenv-rails"
-  
+
   # Debugging tool
   gem "byebug"
-  
+
   # Proxy reverso para Vite em desenvolvimento
   gem "rack-proxy"
-  
+
   # RSpec para testes
   gem "rspec-rails", "~> 7.0"
   gem "factory_bot_rails"
@@ -66,15 +66,15 @@ end
 group :test do
   gem "database_cleaner-active_record"
   gem "faker"
-  gem 'capybara'
-  gem 'selenium-webdriver', '~> 4.8'
-  gem 'simplecov', require: false
-  
+  gem "capybara"
+  gem "selenium-webdriver", "~> 4.8"
+  gem "simplecov", require: false
+
   # Mutation testing
-  gem 'mutant', '~> 0.12'
-  gem 'mutant-rspec', '~> 0.12'
-  
+  gem "mutant", "~> 0.12"
+  gem "mutant-rspec", "~> 0.12"
+
   # Gems para testes de performance
-  gem 'benchmark'
-  gem 'memory_profiler'
+  gem "benchmark"
+  gem "memory_profiler"
 end

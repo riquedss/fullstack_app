@@ -1,5 +1,5 @@
 # fullstack_app/app/services/split_rule_engine.rb
-require 'bigdecimal'
+require "bigdecimal"
 
 class SplitRuleEngine
   def initialize(expense)
@@ -42,7 +42,7 @@ class SplitRuleEngine
     base_amount = (@total_amount / num_participants).round(2)
     remainder = @total_amount - (base_amount * num_participants)
 
-    participant_amounts = @participants.map { |user| [user, base_amount] }.to_h
+    participant_amounts = @participants.map { |user| [ user, base_amount ] }.to_h
 
     # Distribui o restante (devido a arredondamento) para um participante arbitrário, aqui o primeiro
     if remainder != 0

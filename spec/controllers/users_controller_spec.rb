@@ -26,13 +26,13 @@ RSpec.describe UsersController, type: :controller do
 
       it 'inicia sessão do usuário criado' do
         post :create, params: valid_params
-        
+
         expect(session[:user_id]).to eq(User.last.id)
       end
 
       it 'retorna o usuário criado no response' do
         post :create, params: valid_params
-        
+
         user_response = JSON.parse(response.body)['user']
         expect(user_response).to have_key('id')
         expect(user_response).to have_key('name')
@@ -58,14 +58,14 @@ RSpec.describe UsersController, type: :controller do
 
         it 'retorna 422 Unprocessable Entity' do
           post :create, params: invalid_params
-          
+
           expect(response).to have_http_status(:unprocessable_entity)
           expect(User.count).to eq(0)
         end
 
         it 'retorna mensagem de erro apropriada' do
           post :create, params: invalid_params
-          
+
           errors = JSON.parse(response.body)['errors']
           expect(errors).to include("Name can't be blank")
         end
@@ -85,14 +85,14 @@ RSpec.describe UsersController, type: :controller do
 
         it 'retorna 422 Unprocessable Entity' do
           post :create, params: invalid_params
-          
+
           expect(response).to have_http_status(:unprocessable_entity)
           expect(User.count).to eq(0)
         end
 
         it 'retorna mensagem de erro de email' do
           post :create, params: invalid_params
-          
+
           errors = JSON.parse(response.body)['errors']
           expect(errors).to include(/Email is invalid/)
         end
@@ -100,7 +100,7 @@ RSpec.describe UsersController, type: :controller do
 
       context 'email duplicado' do
         let!(:existing_user) { create(:user, email: 'joao@example.com') }
-        
+
         let(:duplicate_params) do
           {
             user: {
@@ -114,14 +114,14 @@ RSpec.describe UsersController, type: :controller do
 
         it 'retorna 422 Unprocessable Entity' do
           post :create, params: duplicate_params
-          
+
           expect(response).to have_http_status(:unprocessable_entity)
           expect(User.count).to eq(1)
         end
 
         it 'retorna mensagem de erro de duplicidade' do
           post :create, params: duplicate_params
-          
+
           errors = JSON.parse(response.body)['errors']
           expect(errors).to include(/Email has already been taken/)
         end
@@ -141,14 +141,14 @@ RSpec.describe UsersController, type: :controller do
 
         it 'retorna 422 Unprocessable Entity' do
           post :create, params: mismatch_params
-          
+
           expect(response).to have_http_status(:unprocessable_entity)
           expect(User.count).to eq(0)
         end
 
         it 'retorna mensagem de erro de confirmação' do
           post :create, params: mismatch_params
-          
+
           errors = JSON.parse(response.body)['errors']
           expect(errors).to include(/Password confirmation doesn't match/)
         end
@@ -165,14 +165,14 @@ RSpec.describe UsersController, type: :controller do
 
         it 'retorna 422 Unprocessable Entity' do
           post :create, params: incomplete_params
-          
+
           expect(response).to have_http_status(:unprocessable_entity)
           expect(User.count).to eq(0)
         end
 
         it 'retorna múltiplas mensagens de erro' do
           post :create, params: incomplete_params
-          
+
           errors = JSON.parse(response.body)['errors']
           expect(errors).to include("Email can't be blank")
           expect(errors).to include("Password can't be blank")
@@ -187,7 +187,7 @@ RSpec.describe UsersController, type: :controller do
     context 'com ID válido' do
       it 'retorna o usuário solicitado' do
         get :show, params: { id: user.id }
-        
+
         expect(response).to have_http_status(:ok)
         user_response = JSON.parse(response.body)['user']
         expect(user_response['id']).to eq(user.id)
@@ -197,7 +197,7 @@ RSpec.describe UsersController, type: :controller do
 
       it 'retorna todos os campos do usuário' do
         get :show, params: { id: user.id }
-        
+
         user_response = JSON.parse(response.body)['user']
         expect(user_response).to have_key('id')
         expect(user_response).to have_key('name')
@@ -210,7 +210,7 @@ RSpec.describe UsersController, type: :controller do
     context 'com ID inválido' do
       it 'retorna 404 Not Found para usuário não existente' do
         get :show, params: { id: 99999 }
-        
+
         expect(response).to have_http_status(:not_found)
         expect(JSON.parse(response.body)['message']).to eq('Usuário não encontrado.')
       end
@@ -218,7 +218,7 @@ RSpec.describe UsersController, type: :controller do
       it 'retorna 404 Not Found para ID nil' do
         # Testa com string vazia em vez de nil para evitar erro de rota
         get :show, params: { id: '' }
-        
+
         expect(response).to have_http_status(:not_found)
         expect(JSON.parse(response.body)['message']).to eq('Usuário não encontrado.')
       end
@@ -233,7 +233,7 @@ RSpec.describe UsersController, type: :controller do
     context 'sem autenticação' do
       it 'retorna 401 Unauthorized' do
         get :index, params: {}
-        
+
         expect(response).to have_http_status(:unauthorized)
       end
     end
@@ -244,7 +244,7 @@ RSpec.describe UsersController, type: :controller do
       context 'sem parâmetro de busca' do
         it 'retorna lista de todos os usuários' do
           get :index, params: {}
-          
+
           expect(response).to have_http_status(:ok)
           users = JSON.parse(response.body)
           expect(users.length).to eq(3)
@@ -252,7 +252,7 @@ RSpec.describe UsersController, type: :controller do
 
         it 'retorna apenas campos permitidos' do
           get :index, params: {}
-          
+
           users = JSON.parse(response.body)
           user = users.first
           expect(user).to have_key('id')
@@ -266,7 +266,7 @@ RSpec.describe UsersController, type: :controller do
       context 'com parâmetro de busca' do
         it 'filtra por nome' do
           get :index, params: { search: 'Henrique' }
-          
+
           expect(response).to have_http_status(:ok)
           users = JSON.parse(response.body)
           expect(users.length).to eq(1)
@@ -275,7 +275,7 @@ RSpec.describe UsersController, type: :controller do
 
         it 'filtra por email' do
           get :index, params: { search: 'maria' }
-          
+
           expect(response).to have_http_status(:ok)
           users = JSON.parse(response.body)
           expect(users.length).to eq(1)
@@ -284,7 +284,7 @@ RSpec.describe UsersController, type: :controller do
 
         it 'busca case insensitive' do
           get :index, params: { search: 'henrique' }
-          
+
           expect(response).to have_http_status(:ok)
           users = JSON.parse(response.body)
           expect(users.length).to eq(1)
@@ -293,7 +293,7 @@ RSpec.describe UsersController, type: :controller do
 
         it 'retorna lista vazia para busca sem resultados' do
           get :index, params: { search: 'inexistente' }
-          
+
           expect(response).to have_http_status(:ok)
           users = JSON.parse(response.body)
           expect(users.length).to eq(0)
@@ -303,7 +303,7 @@ RSpec.describe UsersController, type: :controller do
       context 'parâmetro de busca em branco' do
         it 'retorna todos os usuários para busca vazia' do
           get :index, params: { search: '' }
-          
+
           expect(response).to have_http_status(:ok)
           users = JSON.parse(response.body)
           expect(users.length).to eq(3)
@@ -311,7 +311,7 @@ RSpec.describe UsersController, type: :controller do
 
         it 'retorna todos os usuários para busca nil' do
           get :index, params: { search: nil }
-          
+
           expect(response).to have_http_status(:ok)
           users = JSON.parse(response.body)
           expect(users.length).to eq(3)

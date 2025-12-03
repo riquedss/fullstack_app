@@ -53,7 +53,7 @@ RSpec.describe 'BalanceAggregator Integration', type: :integration do
 
       expect(simplified_graph.keys).to include(user_c)
       simplified_graph[user_c].keys.each do |creditor|
-        expect([user_a, user_b]).to include(creditor)
+        expect([ user_a, user_b ]).to include(creditor)
       end
     end
 

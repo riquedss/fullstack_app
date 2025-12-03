@@ -6,11 +6,11 @@ RSpec.describe PaymentsController, type: :controller do
   let!(:other_user) { create(:user) }
   # O Factory de Group (create(:group, creator: payer)) geralmente cria a membership para o creator.
   let!(:group) { create(:group, creator: payer) }
-  
+
   # REMOVIDO: let!(:payer_membership) { create(:group_membership, group: group, user: payer) }
   # O payer já é membro (criador) do grupo. A criação explícita causava o erro de duplicação.
   let!(:receiver_membership) { create(:group_membership, group: group, user: receiver) }
-  
+
   let!(:payment) { create(:payment, group: group, payer: payer, receiver: receiver, amount: 50.00) }
 
   # Garante que o usuário logado é o pagador original
@@ -79,7 +79,7 @@ RSpec.describe PaymentsController, type: :controller do
     let(:invalid_params) do
       {
         payment: {
-          amount: -10.00, 
+          amount: -10.00,
           receiver_id: receiver.id,
           currency: 'BRL'
         }
@@ -103,7 +103,7 @@ RSpec.describe PaymentsController, type: :controller do
       it 'retorna 422 Unprocessable Entity (falha de validação)' do
         # Força a falha da validação do modelo para cobrir o bloco 'else'
         allow_any_instance_of(Payment).to receive(:save).and_return(false)
-        allow_any_instance_of(Payment).to receive_message_chain(:errors, :full_messages).and_return(['Amount must be greater than 0'])
+        allow_any_instance_of(Payment).to receive_message_chain(:errors, :full_messages).and_return([ 'Amount must be greater than 0' ])
 
         expect {
           post :create, params: { group_id: group.id }.merge(valid_params)
@@ -118,7 +118,7 @@ RSpec.describe PaymentsController, type: :controller do
   describe 'PATCH/PUT #update' do
     let(:new_amount) { 75.00 }
     let(:update_params) { { payment: { amount: new_amount } } }
-    
+
     # Adiciona other_user ao grupo para que ele possa tentar acessar
     let!(:other_user_membership) { create(:group_membership, group: group, user: other_user) }
 
@@ -136,7 +136,7 @@ RSpec.describe PaymentsController, type: :controller do
       it 'retorna 422 Unprocessable Entity se a atualização falhar' do
         # Força a falha do update para cobrir o bloco 'else'
         allow_any_instance_of(Payment).to receive(:update).and_return(false)
-        allow_any_instance_of(Payment).to receive_message_chain(:errors, :full_messages).and_return(['Erro forçado de validação na atualização.'])
+        allow_any_instance_of(Payment).to receive_message_chain(:errors, :full_messages).and_return([ 'Erro forçado de validação na atualização.' ])
 
         patch :update, params: { group_id: group.id, id: payment.id }.merge(update_params)
         expect(response).to have_http_status(:unprocessable_entity)
@@ -166,7 +166,7 @@ RSpec.describe PaymentsController, type: :controller do
       it 'exclui o pagamento com sucesso' do
         # Cria um pagamento que será excluído neste bloco
         payment_to_destroy = create(:payment, group: group, payer: payer, receiver: receiver, amount: 10.00)
-        
+
         expect {
           delete :destroy, params: { group_id: group.id, id: payment_to_destroy.id }
         }.to change(Payment, :count).by(-1)
@@ -176,12 +176,12 @@ RSpec.describe PaymentsController, type: :controller do
       it 'retorna 422 Unprocessable Entity se a exclusão falhar' do
         # Cria um novo pagamento para o destroy
         payment_to_destroy = create(:payment, group: group, payer: payer, receiver: receiver, amount: 10.00)
-        
+
         # Força a falha do destroy para cobrir o bloco 'else'
         # Usamos allow_any_instance_of para evitar redefinir let!(:payment)
         allow_any_instance_of(Payment).to receive(:destroy).and_return(false)
-        allow_any_instance_of(Payment).to receive_message_chain(:errors, :full_messages).and_return(['Erro forçado de remoção.'])
-        
+        allow_any_instance_of(Payment).to receive_message_chain(:errors, :full_messages).and_return([ 'Erro forçado de remoção.' ])
+
         expect {
           delete :destroy, params: { group_id: group.id, id: payment_to_destroy.id }
         }.not_to change(Payment, :count)

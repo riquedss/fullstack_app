@@ -27,7 +27,7 @@ RSpec.describe 'Expense', type: :system, js: true do
     end
 
     click_button 'Salvar Despesa'
- 
+
     expect(page).to have_content('Despesas do Grupo')
     expect(page).to have_content('Compra de supermercado')
     expect(page).to have_content('Valor Total: 150 BRL')

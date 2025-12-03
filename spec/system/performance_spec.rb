@@ -8,7 +8,7 @@ RSpec.describe 'Requisitos de Performance', type: :system, js: true do
   let!(:user) { create(:user, email: 'test@example.com', name: 'Test User') }
   let!(:group) { create(:group, name: 'Grupo Performance Test', creator: user) }
   let!(:members) { create_list(:user, 10) }
-  
+
   before do
     members.each { |member| create(:group_membership, group: group, user: member, status: 'active') }
 
@@ -25,7 +25,7 @@ RSpec.describe 'Requisitos de Performance', type: :system, js: true do
 
     10.times do
       payer = members.sample
-      receiver = (members - [payer]).sample
+      receiver = (members - [ payer ]).sample
       create(:payment, group: group, payer: payer, receiver: receiver, amount: rand(20..200))
     end
   end
@@ -39,12 +39,11 @@ RSpec.describe 'Requisitos de Performance', type: :system, js: true do
 
   describe 'Performance de Carregamento de Página' do
     it 'carrega lista de grupos dentro do tempo aceitável', :performance do
-      
       load_time = Benchmark.measure do
         login(user)
         expect(page).to have_content('Meus Grupos')
       end
-      
+
       expect(load_time.real).to be < 3.0
     end
 
@@ -52,21 +51,21 @@ RSpec.describe 'Requisitos de Performance', type: :system, js: true do
       login(user)
 
       find('.group-item', text: group.name).click
-      
+
       click_button 'Adicionar Despesa'
 
       fill_in 'Descrição', with: 'Despesa Performance Test'
       fill_in 'Valor', with: '150.00'
-      
+
       check members.first.name
       check members.second.name
-      
+
       load_time = Benchmark.measure do
         click_button 'Salvar Despesa'
-        
+
         expect(page).to have_content('Despesa Performance Test')
       end
-      
+
       expect(load_time.real).to be < 2.0
     end
   end

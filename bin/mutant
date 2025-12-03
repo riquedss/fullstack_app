@@ -27,7 +27,7 @@ when 'models'
   
 when 'services'
   puts "⚙️ Testando mutações nos Serviços..."
-  system("bundle exec mutant run --usage opensource --integration rspec -- 'app/services/*'")
+  system("bundle exec mutant run --usage opensource --integration rspec -I . -r config/environment -- BalanceCalculator BalanceAggregator SettlementOptimizer SplitRuleEngine TransactionSimplifier")
   
 when 'user'
   puts "👤 Testando mutações no User model..."
@@ -44,6 +44,22 @@ when 'expense'
 when 'split_engine'
   puts "⚡ Testando mutações no SplitRuleEngine..."
   system("bundle exec mutant run --usage opensource --integration rspec -I . -r config/environment -- 'SplitRuleEngine'")
+
+when 'balance_calculator'
+  puts "🧮 Testando mutações no BalanceCalculator..."
+  system("bundle exec mutant run --usage opensource --integration rspec -I . -r config/environment -- 'BalanceCalculator'")
+
+when 'balance_aggregator'
+  puts "📊 Testando mutações no BalanceAggregator..."
+  system("bundle exec mutant run --usage opensource --integration rspec -I . -r config/environment -- 'BalanceAggregator'")
+
+when 'settlement_optimizer'
+  puts "🎯 Testando mutações no SettlementOptimizer..."
+  system("bundle exec mutant run --usage opensource --integration rspec -I . -r config/environment -- 'SettlementOptimizer'")
+
+when 'transaction_simplifier'
+  puts "🔄 Testando mutações no TransactionSimplifier..."
+  system("bundle exec mutant run --usage opensource --integration rspec -I . -r config/environment -- 'TransactionSimplifier'")
   
 when 'help', '--help', '-h'
   puts <<~HELP
@@ -53,17 +69,23 @@ when 'help', '--help', '-h'
       bin/mutant [alvo] [opções]
     
     Alvos disponíveis:
-      models     - Testa todos os modelos
-      services   - Testa todos os serviços
-      user       - Testa apenas o User model
-      payment    - Testa apenas o Payment model
-      expense    - Testa apenas o Expense model
-      split_engine - Testa apenas o SplitRuleEngine
+      models              - Testa todos os modelos
+      services            - Testa todos os serviços
+      user                - Testa apenas o User model
+      payment             - Testa apenas o Payment model
+      expense             - Testa apenas o Expense model
+      balance_calculator   - Testa apenas o BalanceCalculator
+      balance_aggregator   - Testa apenas o BalanceAggregator
+      settlement_optimizer - Testa apenas o SettlementOptimizer
+      split_rule_engine    - Testa apenas o SplitRuleEngine
+      transaction_simplifier - Testa apenas o TransactionSimplifier
     
     Exemplos:
       bin/mutant models
-      bin/mutant user
       bin/mutant services
+      bin/mutant user
+      bin/mutant transaction_simplifier
+      bin/mutant balance_calculator
     
     O que é Mutation Testing?
     Mutation testing modifica o código fonte (mutações) para verificar

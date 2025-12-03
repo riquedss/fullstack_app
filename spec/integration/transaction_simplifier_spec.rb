@@ -58,7 +58,7 @@ RSpec.describe 'TransactionSimplifier Integration', type: :integration do
 
     it 'remove dívidas muito pequenas' do
       debt_graph = {
-        user_a => { 
+        user_a => {
           user_b => BigDecimal('50.00'),
           user_c => BigDecimal('0.005')
         },
@@ -75,15 +75,15 @@ RSpec.describe 'TransactionSimplifier Integration', type: :integration do
 
     it 'lidar com cenários com múltiplos usuários' do
       debt_graph = {
-        user_a => { 
+        user_a => {
           user_b => BigDecimal('40.00'),
           user_c => BigDecimal('15.00')
         },
-        user_b => { 
+        user_b => {
           user_a => BigDecimal('20.00'),
           user_c => BigDecimal('30.00')
         },
-        user_c => { 
+        user_c => {
           user_a => BigDecimal('10.00')
         }
       }

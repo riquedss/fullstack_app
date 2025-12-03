@@ -8,4 +8,3 @@ FactoryBot.define do
     receiver { association :user }
   end
 end
-

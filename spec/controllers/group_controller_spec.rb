@@ -11,7 +11,7 @@ RSpec.describe GroupsController, type: :controller do
   describe 'GET #index' do
     it 'retorna lista de grupos do usuário' do
       get :index
-      
+
       expect(response).to have_http_status(:ok)
       groups = JSON.parse(response.body)
       expect(groups.length).to be >= 1
@@ -22,7 +22,7 @@ RSpec.describe GroupsController, type: :controller do
 
     it 'inclui dados do criador' do
       get :index
-      
+
       groups = JSON.parse(response.body)
       creator_data = groups.first['creator']
       expect(creator_data['id']).to eq(user.id)
@@ -33,7 +33,7 @@ RSpec.describe GroupsController, type: :controller do
   describe 'GET #show' do
     it 'retorna dados do grupo' do
       get :show, params: { id: group.id }
-      
+
       expect(response).to have_http_status(:ok)
       group_data = JSON.parse(response.body)
       expect(group_data['id']).to eq(group.id)
@@ -42,7 +42,7 @@ RSpec.describe GroupsController, type: :controller do
 
     it 'retorna membros do grupo' do
       get :show, params: { id: group.id }
-      
+
       group_data = JSON.parse(response.body)
       expect(group_data).to have_key('members')
       expect(group_data['members']).to be_an(Array)
@@ -50,7 +50,7 @@ RSpec.describe GroupsController, type: :controller do
 
     it 'retorna memberships do grupo' do
       get :show, params: { id: group.id }
-      
+
       group_data = JSON.parse(response.body)
       expect(group_data).to have_key('memberships')
       expect(group_data['memberships']).to be_an(Array)
@@ -58,7 +58,7 @@ RSpec.describe GroupsController, type: :controller do
 
     it 'retorna 404 para grupo inexistente' do
       get :show, params: { id: 99999 }
-      
+
       expect(response).to have_http_status(:not_found)
     end
   end
@@ -77,7 +77,7 @@ RSpec.describe GroupsController, type: :controller do
       expect {
         post :create, params: valid_params
       }.to change(Group, :count).by(1)
-      
+
       expect(response).to have_http_status(:created)
       response_data = JSON.parse(response.body)
       expect(response_data['group']['name']).to eq('Novo Grupo')
@@ -85,18 +85,18 @@ RSpec.describe GroupsController, type: :controller do
 
     it 'define usuário como criador' do
       post :create, params: valid_params
-      
+
       new_group = Group.last
       expect(new_group.creator).to eq(user)
     end
 
     it 'retorna erro para nome em branco' do
       invalid_params = { group: { name: '' } }
-      
+
       expect {
         post :create, params: invalid_params
       }.not_to change(Group, :count)
-      
+
       expect(response).to have_http_status(:unprocessable_entity)
     end
   end
@@ -114,7 +114,7 @@ RSpec.describe GroupsController, type: :controller do
 
     it 'atualiza grupo com sucesso' do
       patch :update, params: update_params
-      
+
       expect(response).to have_http_status(:ok)
       group.reload
       expect(group.name).to eq('Grupo Atualizado')
@@ -123,7 +123,7 @@ RSpec.describe GroupsController, type: :controller do
 
     it 'retorna dados atualizados' do
       patch :update, params: update_params
-      
+
       response_data = JSON.parse(response.body)
       expect(response_data['group']['name']).to eq('Grupo Atualizado')
     end
@@ -133,9 +133,9 @@ RSpec.describe GroupsController, type: :controller do
         id: group.id,
         group: { name: '' }
       }
-      
+
       patch :update, params: invalid_params
-      
+
       expect(response).to have_http_status(:unprocessable_entity)
       group.reload
       expect(group.name).not_to eq('')
@@ -143,7 +143,7 @@ RSpec.describe GroupsController, type: :controller do
 
     it 'retorna 404 para grupo inexistente' do
       patch :update, params: { id: 99999, group: { name: 'Teste' } }
-      
+
       expect(response).to have_http_status(:not_found)
     end
   end
@@ -153,7 +153,7 @@ RSpec.describe GroupsController, type: :controller do
       expect {
         delete :destroy, params: { id: 99999 }
       }.not_to change(Group, :count)
-      
+
       expect(response).to have_http_status(:not_found)
     end
   end

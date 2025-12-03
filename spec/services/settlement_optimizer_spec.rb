@@ -35,7 +35,7 @@ RSpec.describe SettlementOptimizer, type: :service do
       it 'gera um único pagamento direto de A para C' do
         optimizer = SettlementOptimizer.new(chain_graph)
         payments = optimizer.generate_optimized_payments
-        
+
         expect(payments.size).to eq(1)
         expect(payments.first[:payer]).to eq(user_a)
         expect(payments.first[:receiver]).to eq(user_c)
@@ -56,7 +56,7 @@ RSpec.describe SettlementOptimizer, type: :service do
         optimizer = SettlementOptimizer.new(complex_graph)
         payments = optimizer.generate_optimized_payments
 
-        expect(payments.size).to eq(3) 
+        expect(payments.size).to eq(3)
         payment_1 = payments.find { |p| p[:payer] == user_a }
         expect(payments.find { |p| p[:payer] == user_a }[:amount]).to eq(BigDecimal('90.00'))
       end
@@ -71,18 +71,17 @@ RSpec.describe SettlementOptimizer, type: :service do
       }
 
       it 'resolve o maior devedor primeiro e reinicia o loop' do
-    
         optimizer = SettlementOptimizer.new(partial_graph)
         payments = optimizer.generate_optimized_payments
 
         expect(payments.size).to eq(2)
-        
+
 
         expect(payments.first[:payer]).to eq(user_a)
         expect(payments.first[:receiver]).to eq(user_b)
         expect(payments.first[:amount]).to eq(BigDecimal('150.00'))
-       
-        
+
+
         expect(payments.last[:payer]).to eq(user_c)
         expect(payments.last[:receiver]).to eq(user_b)
         expect(payments.last[:amount]).to eq(BigDecimal('100.00'))

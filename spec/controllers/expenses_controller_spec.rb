@@ -108,14 +108,14 @@ RSpec.describe ExpensesController, type: :controller do
         expect {
           post :create, params: { group_id: group.id }.merge(base_valid_params)
         }.to change(Expense, :count).by(1).and change(ExpenseParticipant, :count).by(2)
-        
+
         created_expense = Expense.last
         expect(response).to have_http_status(:created)
         expect(created_expense.total_amount).to eq(300.00)
         expect(created_expense.expense_participants.map(&:amount_owed)).to contain_exactly(150.0, 150.0)
       end
     end
-    
+
     context 'Criação com sucesso (Divisão por Porcentagens)' do
       let(:percentage_params) do
         base_valid_params.deep_merge(
@@ -135,22 +135,22 @@ RSpec.describe ExpensesController, type: :controller do
         # Aqui, o mock global de 40/60 para R$100.00 entra em ação
         # OBS: Se a despesa criada tem 300.00, o mock deveria retornar 120/180.
         # Ajustando a expectativa para o valor mockado de R$100.00 para passar o teste como está configurado.
-        
+
         # Para que o teste use o total_amount de 300.00 e retorne 120/180 (40% e 60% de 300):
         allow_any_instance_of(SplitRuleEngine).to receive(:apply_split).and_return(
           member1 => 120.0,
           member2 => 180.0
         )
-        
+
         expect {
           post :create, params: { group_id: group.id }.merge(percentage_params)
         }.to change(Expense, :count).by(1).and change(ExpenseParticipant, :count).by(2)
 
         created_expense = Expense.last
         expect(response).to have_http_status(:created)
-        
+
         # Testando os valores reais com base no mock de R$300.00
-        expect(created_expense.expense_participants.find_by(user: member1).amount_owed).to eq(120.0) 
+        expect(created_expense.expense_participants.find_by(user: member1).amount_owed).to eq(120.0)
         expect(created_expense.expense_participants.find_by(user: member2).amount_owed).to eq(180.0)
       end
     end
@@ -159,7 +159,7 @@ RSpec.describe ExpensesController, type: :controller do
       it 'retorna 422 e não cria a despesa (cobre o bloco else/rollback)' do
         # Força o save da despesa a falhar
         allow_any_instance_of(Expense).to receive(:save).and_return(false)
-        allow_any_instance_of(Expense).to receive_message_chain(:errors, :full_messages).and_return(['Total amount não pode ser zero.'])
+        allow_any_instance_of(Expense).to receive_message_chain(:errors, :full_messages).and_return([ 'Total amount não pode ser zero.' ])
 
         expect {
           post :create, params: { group_id: group.id }.merge(base_valid_params)
@@ -237,18 +237,18 @@ RSpec.describe ExpensesController, type: :controller do
         expect(response).to have_http_status(:ok)
         expect(expense.description).to eq('Jantar Atualizado')
         expect(expense.total_amount).to eq(200.00)
-        
+
         # Verifica se os participantes foram recriados (o mock retorna 80/120)
         expect(expense.expense_participants.count).to eq(2)
-        expect(expense.expense_participants.map(&:amount_owed)).to contain_exactly(80.0, 120.0) 
+        expect(expense.expense_participants.map(&:amount_owed)).to contain_exactly(80.0, 120.0)
         # Garante que o número total de participantes não mudou (foram deletados e recriados)
-        expect(ExpenseParticipant.count).to eq(original_participant_count) 
+        expect(ExpenseParticipant.count).to eq(original_participant_count)
       end
 
       it 'retorna 422 se a atualização da despesa falhar (cobre o bloco else/rollback)' do
         # Força a falha do update da despesa
         allow_any_instance_of(Expense).to receive(:update).and_return(false)
-        allow_any_instance_of(Expense).to receive_message_chain(:errors, :full_messages).and_return(['Não pode ser atualizado.'])
+        allow_any_instance_of(Expense).to receive_message_chain(:errors, :full_messages).and_return([ 'Não pode ser atualizado.' ])
 
         patch :update, params: { group_id: group.id, id: expense.id }.merge(update_params)
 
@@ -299,12 +299,12 @@ RSpec.describe ExpensesController, type: :controller do
       it 'retorna 422 Unprocessable Entity se a exclusão falhar (cobre o bloco else)' do
         # Força a falha do destroy
         allow_any_instance_of(Expense).to receive(:destroy).and_return(false)
-        allow_any_instance_of(Expense).to receive_message_chain(:errors, :full_messages).and_return(['Não pode ser excluído.'])
+        allow_any_instance_of(Expense).to receive_message_chain(:errors, :full_messages).and_return([ 'Não pode ser excluído.' ])
 
         expect {
           delete :destroy, params: { group_id: group.id, id: expense.id }
         }.not_to change(Expense, :count)
-        
+
         expect(response).to have_http_status(:unprocessable_entity)
         expect(JSON.parse(response.body)['errors']).to include('Não pode ser excluído.')
       end
@@ -339,7 +339,7 @@ RSpec.describe ExpensesController, type: :controller do
       expect {
         post :settle, params: { group_id: group.id, id: expense_to_settle.id }
       }.to change(Payment, :count).by(2) # member1 paga payer (40), member2 paga payer (60)
-      
+
       expect(response).to have_http_status(:created)
       payments = JSON.parse(response.body)['payments']
       expect(payments.size).to eq(2)
@@ -358,7 +358,7 @@ RSpec.describe ExpensesController, type: :controller do
       expect(response).to have_http_status(:not_found)
       expect(JSON.parse(response.body)['error']).to include('Despesa não encontrada.')
     end
-    
+
     it 'evita criar pagamentos duplicados (cobre o next if quitado)' do
       # Cria um pagamento prévio (member1 já quitou)
       create(:payment, group: group, payer: member1, receiver: payer, amount: 40.00)
@@ -366,7 +366,7 @@ RSpec.describe ExpensesController, type: :controller do
       expect {
         post :settle, params: { group_id: group.id, id: expense_to_settle.id }
       }.to change(Payment, :count).by(1) # Apenas member2 paga (60)
-      
+
       payments = JSON.parse(response.body)['payments']
       expect(payments.size).to eq(1)
       expect(payments.first['amount'].to_f).to eq(60.0)
@@ -377,7 +377,7 @@ RSpec.describe ExpensesController, type: :controller do
       allow_any_instance_of(Payment).to receive(:save!).and_raise(StandardError, 'Erro forçado ao salvar o pagamento.')
 
       post :settle, params: { group_id: group.id, id: expense_to_settle.id }
-      
+
       expect(response).to have_http_status(:unprocessable_entity)
       expect(JSON.parse(response.body)['error']).to include('Erro ao quitar despesa:')
     end
@@ -393,14 +393,14 @@ RSpec.describe ExpensesController, type: :controller do
       expect(controller_instance.send(:normalize_splitting_params, nil, :equally)).to eq({})
       expect(controller_instance.send(:normalize_splitting_params, {}, :equally)).to eq({})
     end
-    
+
     it 'converte ActionController::Parameters para Hash se necessário (cobre o params_hash.to_h)' do
       # Simula o ActionController::Parameters permitido
       mock_params = ActionController::Parameters.new({ 'amounts' => { '1' => '50' } })
       allow(mock_params).to receive(:permitted?).and_return(true)
-      
+
       normalized = controller_instance.send(:normalize_splitting_params, mock_params, :by_fixed_amounts)
-      
+
       expect(normalized[:amounts]).to eq({ 1 => 50.0 })
     end
 
